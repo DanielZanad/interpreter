@@ -16,26 +16,26 @@ class Scanner {
     private int current = 0;
     private int line = 1;
     private static final Map<String, TokenType> keywords;
+
     static {
         keywords = new HashMap<>();
-        keywords.put("and",    AND);
-        keywords.put("class",  CLASS);
-        keywords.put("else",   ELSE);
-        keywords.put("false",  FALSE);
-        keywords.put("for",    FOR);
-        keywords.put("fun",    FUN);
-        keywords.put("if",     IF);
-        keywords.put("nil",    NIL);
-        keywords.put("or",     OR);
-        keywords.put("print",  PRINT);
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
         keywords.put("return", RETURN);
-        keywords.put("super",  SUPER);
-        keywords.put("this",   THIS);
-        keywords.put("true",   TRUE);
-        keywords.put("var",    VAR);
-        keywords.put("while",  WHILE);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
     }
-
 
 
     Scanner(String source) {
@@ -103,7 +103,11 @@ class Scanner {
             case '/':
                 if (match('/')) {
                     // A comment goes until the end of the line
+                    /*
+                     * */
                     while (peek() != '\n' && !isAtEnd()) advance();
+                } else if (match('*')) {
+                    while (peek() != '/' && !isAtEnd()) advance();
                 } else {
                     addToken(SLASH);
                 }
@@ -126,8 +130,7 @@ class Scanner {
                     number();
                 } else if (isAlpha(c)) {
                     identifier();
-                }
-                else {
+                } else {
                     Lox.error(line, "Unexpected character");
                 }
                 break;
@@ -135,7 +138,7 @@ class Scanner {
     }
 
     private void identifier() {
-        while(isAlphaNumeric(peek())) advance();
+        while (isAlphaNumeric(peek())) advance();
 
         String text = source.substring(start, current);
         TokenType type = keywords.get(text);
@@ -143,15 +146,15 @@ class Scanner {
         addToken(type);
     }
 
-    private void number(){
-        while(isDigit(peek())) advance();
+    private void number() {
+        while (isDigit(peek())) advance();
 
         // Look for a fractional part.
-        if(peek() == '.' && isDigit(peekNext())) {
+        if (peek() == '.' && isDigit(peekNext())) {
             // Consume the .
             advance();
 
-            while(isDigit(peek())) advance();
+            while (isDigit(peek())) advance();
         }
 
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
@@ -207,7 +210,7 @@ class Scanner {
     }
 
     private boolean isDigit(char c) {
-        return c >='0' && c <= '9';
+        return c >= '0' && c <= '9';
     }
 
     private boolean isAtEnd() {

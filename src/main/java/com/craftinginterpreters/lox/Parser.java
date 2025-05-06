@@ -1,6 +1,7 @@
 package com.craftinginterpreters.lox;
 
 import java.security.cert.CertificateRevokedException;
+import java.util.ArrayList;
 import java.util.List;
 import static com.craftinginterpreters.lox.TokenType.*;
 
@@ -14,16 +15,36 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!isAtEnd()) {
+            statements.add(statements());
         }
+        return statements;
     }
 
     private Expr expression() {
         return equality();
+    }
+
+    private Stmt statements() {
+        if (match(PRINT)) return printStatement();
+
+        return expressionStatment();
+    }
+
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expected ';' after value");
+        return new Stmt.Print(value);
+    }
+
+
+    private Stmt expressionStatment() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression");
+        return new Stmt.Expression(expr);
     }
 
 
